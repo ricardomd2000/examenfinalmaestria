@@ -71,50 +71,50 @@
         const casos = [
             {
                 id: 1,
-                titulo: "Riesgo Biomecánico - La Línea de Ensamblaje",
+                titulo: "Unidad 1: Atributos y Marco Legal - Riesgo Biomecánico",
                 empresa: "AutoEnsambles del Norte (500 trabajadores operativos)",
-                problema: "Aumento inusual en incapacidades por dolor lumbar y síndrome del túnel carpiano. Gerencia preocupada por productividad y demandas.",
-                mision: "Diseñar e implementar el SVE para Trastornos Musculoesqueléticos (TME).",
+                problema: "Aumento inusual de TME. Se requiere un sistema con alta sensibilidad y representatividad según el marco legal colombiano.",
+                mision: "Seleccionar el tipo de vigilancia que garantice los mejores atributos (sensibilidad/especificidad) para este caso.",
                 opciones: [
-                    { id: 'A', titulo: "Vigilancia Pasiva (Ausentismo)", desc: "Analizar únicamente registros de incapacidades médicas y diagnósticos." },
-                    { id: 'B', titulo: "Vigilancia Activa Universal", desc: "Aplicación de Cuestionario Nórdico y evaluaciones a los 500 trabajadores." },
-                    { id: 'C', titulo: "Vigilancia Centinela", desc: "Evaluaciones clínicas detalladas solo en los 3 puestos con mayor carga física." }
+                    { id: 'A', titulo: "Vigilancia Pasiva", desc: "Aceptable legalmente, pero con baja sensibilidad. Solo analiza registros de ausentismo médico.", puntaje: 2.0 },
+                    { id: 'B', titulo: "Vigilancia Activa Universal", desc: "Alta sensibilidad y oportunidad. Aplicación de tamizajes proactivos a los 500 trabajadores.", puntaje: 5.0 },
+                    { id: 'C', titulo: "Vigilancia Centinela", desc: "Alta especificidad pero menor representatividad total. Evalúa solo 3 puestos críticos.", puntaje: 3.5 }
                 ]
             },
             {
                 id: 2,
-                titulo: "Riesgo Químico - El Adhesivo Invisible",
+                titulo: "Unidad 2: Tipos de Vigilancia - Riesgo Químico por Solventes",
                 empresa: "Calzado Paso Firme (Uso de Tolueno y Xileno)",
-                problema: "Trabajadores consultan por dolores de cabeza, mareos y dermatitis. Sospecha de intoxicación crónica.",
-                mision: "Determinar el enfoque del SVE para riesgo químico por solventes.",
+                problema: "Posible intoxicación crónica. Se requiere definir el enfoque de vigilancia (especializada vs centinela) para eventos específicos.",
+                mision: "Determinar la estrategia de vigilancia según el enfoque más adecuado para agentes químicos definidos.",
                 opciones: [
-                    { id: 'A', titulo: "Vigilancia Biológica", desc: "Muestras biológicas (sangre/orina) para medir metabolitos de solventes." },
-                    { id: 'B', titulo: "Vigilancia Ambiental", desc: "Dosímetros personales para medir vapores de solventes en operarios." },
-                    { id: 'C', titulo: "Vigilancia Sindrómica", desc: "Registro diario en enfermería de síntomas al final del turno." }
+                    { id: 'A', titulo: "Vigilancia Especializada (Biológica)", desc: "Enfoque normativo y de alta sensibilidad. Medición de metabolitos en expuestos.", puntaje: 5.0 },
+                    { id: 'B', titulo: "Vigilancia de Seguimiento General (Ambiental)", desc: "Orientada a observar tendencias del entorno (dosimetrías), no del individuo.", puntaje: 3.0 },
+                    { id: 'C', titulo: "Vigilancia Pasiva Sindrómica", desc: "Baja calidad diagnóstica. Solo registra síntomas al final del turno.", puntaje: 1.5 }
                 ]
             },
             {
                 id: 3,
-                titulo: "Riesgo Psicosocial - La Línea Caliente",
+                titulo: "Unidad 3: Recolección y Análisis - Riesgo Psicosocial",
                 empresa: "Atención Total BPO (Call Center)",
-                problema: "Rotación del 40% anual. Quejas de clima laboral e incremento de licencias psiquiátricas.",
-                mision: "Estructurar el SVE para la prevención del riesgo psicosocial.",
+                problema: "Alta rotación y estrés. Es vital recolectar datos asegurando los principios éticos y la confidencialidad en el ámbito laboral.",
+                mision: "Estructurar la recolección de datos y el análisis descriptivo garantizando la ética y validez.",
                 opciones: [
-                    { id: 'A', titulo: "Vigilancia Estandarizada", desc: "Aplicación de la Batería de Riesgo Psicosocial a toda la población." },
-                    { id: 'B', titulo: "Vigilancia Asistencial", desc: "Línea de Ayuda confidencial, analizando datos de quienes llaman." },
-                    { id: 'C', titulo: "Indicadores Proxy", desc: "Monitoreo mensual de ausentismo, calidad y amonestaciones." }
+                    { id: 'A', titulo: "Batería Estandarizada Estricta", desc: "Asegura calidad de datos y anonimato, fundamental en epidemiología psicosocial.", puntaje: 5.0 },
+                    { id: 'B', titulo: "Línea de Ayuda No Anónima", desc: "Riesgos éticos altos. Analiza datos de quienes llaman sin anonimato garantizado.", puntaje: 1.0 },
+                    { id: 'C', titulo: "Monitoreo de Indicadores Proxy", desc: "Recolección secundaria de ausentismo. No viola ética, pero es menos directo.", puntaje: 3.5 }
                 ]
             },
             {
                 id: 4,
-                titulo: "Riesgo Físico (Ruido) - Ecos de la Mina",
+                titulo: "Unidad 3: Interpretación y Difusión - Ecos de la Mina",
                 empresa: "Minerales Andinos (Mina Subterránea)",
-                problema: "Casos de Hipoacusia inducida por ruido. Quejas de tinnitus y EPP incómodos.",
-                mision: "Seleccionar la estrategia de vigilancia para la conservación auditiva.",
+                problema: "Casos de Hipoacusia. Tras analizar (OR y Tasas), se debe elegir la estrategia y cómo difundir la información para tomar acción.",
+                mision: "Decidir el enfoque de vigilancia y la narrativa epidemiológica para difundir a gerencia.",
                 opciones: [
-                    { id: 'A', titulo: "Audiometrías de Tamizaje", desc: "Audiometrías anuales a todos, derivando descensos en 4000 Hz." },
-                    { id: 'B', titulo: "Grupos de Exposición (GES)", desc: "Dosimetrías para GES. Audiometrías estrictas solo a >85 dB(A)." },
-                    { id: 'C', titulo: "Vigilancia de EPP", desc: "Inspecciones aleatorias del uso correcto de protectores auditivos." }
+                    { id: 'A', titulo: "Audiometrías y Difusión a GES", desc: "Análisis focalizado y comunicación efectiva de riesgos a los Grupos de Exposición Similar.", puntaje: 5.0 },
+                    { id: 'B', titulo: "Dosimetrías y Reporte Gerencial", desc: "Datos técnicos precisos pero la difusión excluye a los trabajadores afectados.", puntaje: 3.0 },
+                    { id: 'C', titulo: "Inspecciones EPP y Alerta Masiva", desc: "Información sin canal adecuado, generando pánico sin foco en el riesgo real.", puntaje: 1.5 }
                 ]
             }
         ];
@@ -534,9 +534,29 @@
 
                 const EstudianteCard = ({ est }) => {
                     const [expanded, setExpanded] = useState(false);
+                    const [notaManual, setNotaManual] = useState(est.calificacionAnalisis || '');
+                    const [isSaving, setIsSaving] = useState(false);
+                    
                     const casoAsignado = casos.find(c => c.id === est.assignedCase);
                     const optDetalle = casoAsignado?.opciones.find(o => o.id === est.selection);
                     
+                    const notaPaso1 = optDetalle?.puntaje || 0;
+                    const notaFinal = est.calificacionAnalisis !== undefined ? ((notaPaso1 + parseFloat(est.calificacionAnalisis)) / 2).toFixed(1) : 'Pendiente';
+
+                    const handleSaveGrade = async () => {
+                        if (!db) return;
+                        setIsSaving(true);
+                        try {
+                            const docId = est.email.replace(/[^a-zA-Z0-9]/g, '_');
+                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'evaluaciones_sst', docId), {
+                                calificacionAnalisis: parseFloat(notaManual)
+                            }, { merge: true });
+                        } catch(e) {
+                            console.error(e);
+                        }
+                        setIsSaving(false);
+                    };
+
                     return (
                         <div className="bg-white border border-gray-200 rounded-xl mb-4 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                             <div className="p-4 flex justify-between items-center bg-gray-50 cursor-pointer" onClick={() => setExpanded(!expanded)}>
@@ -544,11 +564,15 @@
                                     <h3 className="font-bold text-gray-800 flex items-center gap-2">
                                         <Users className="w-4 h-4 text-blue-500" /> {est.email}
                                     </h3>
-                                    <div className="text-sm text-gray-600 mt-1 flex gap-4">
+                                    <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-4">
                                         <span><span className="font-semibold">Caso:</span> {est.assignedCase} - {casoAsignado?.titulo.split('-')[0]}</span>
                                         <span>
                                             <span className="font-semibold">SVE:</span> 
                                             {est.selection ? <span className="text-green-600 font-bold ml-1">Opción {est.selection}</span> : <span className="text-red-500 ml-1">Pendiente</span>}
+                                        </span>
+                                        <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded ml-2">
+                                            <span className="font-bold">Nota Final:</span> 
+                                            <span className="font-black ml-1">{notaFinal}</span>
                                         </span>
                                     </div>
                                 </div>
@@ -558,18 +582,48 @@
                             {expanded && (
                                 <div className="p-4 border-t border-gray-100 bg-white">
                                     {est.selection ? (
-                                        <div className="mb-4">
-                                            <span className="text-xs font-bold uppercase text-gray-500">Decisión del estudiante:</span>
-                                            <p className="text-sm font-medium text-blue-800 mt-1">{optDetalle?.titulo}</p>
+                                        <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-100 flex justify-between items-center">
+                                            <div>
+                                                <span className="text-xs font-bold uppercase text-gray-500">Decisión del estudiante (Paso 1):</span>
+                                                <p className="text-sm font-medium text-blue-800 mt-1">{optDetalle?.titulo}</p>
+                                            </div>
+                                            <div className="text-right pl-4 border-l border-blue-200">
+                                                <span className="text-xs font-bold uppercase text-blue-500 block">Puntaje Automático</span>
+                                                <span className="text-xl font-black text-blue-700">{notaPaso1.toFixed(1)} <span className="text-sm font-normal text-blue-500">/ 5.0</span></span>
+                                            </div>
                                         </div>
                                     ) : null}
                                     
                                     <div>
-                                        <span className="text-xs font-bold uppercase text-gray-500">Análisis Estratégico Redactado:</span>
+                                        <span className="text-xs font-bold uppercase text-gray-500">Análisis Estratégico Redactado (Paso 4):</span>
                                         <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1 text-sm text-gray-700 min-h-[60px] whitespace-pre-wrap">
                                             {est.analysis ? est.analysis : <span className="text-gray-400 italic">El estudiante aún no ha redactado su análisis.</span>}
                                         </div>
                                     </div>
+
+                                    {est.analysis && (
+                                        <div className="pt-4 border-t mt-4 flex items-center justify-end gap-3 bg-purple-50 p-3 rounded-lg border border-purple-100">
+                                            <div className="flex flex-col text-right">
+                                                <label className="text-xs font-bold text-purple-800 uppercase">Calificar Análisis (0 a 5)</label>
+                                                <span className="text-xs text-purple-600">Puntaje subjetivo del experto</span>
+                                            </div>
+                                            <input 
+                                                type="number" 
+                                                min="0" max="5" step="0.1" 
+                                                value={notaManual}
+                                                onChange={(e) => setNotaManual(e.target.value)}
+                                                className="w-20 p-2 border border-purple-300 rounded focus:ring-2 focus:ring-purple-500 outline-none text-center font-bold text-lg text-purple-900 bg-white" 
+                                                placeholder="0.0"
+                                            />
+                                            <button 
+                                                onClick={handleSaveGrade}
+                                                disabled={isSaving || notaManual === ''}
+                                                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm disabled:opacity-50 transition-colors flex items-center gap-2"
+                                            >
+                                                {isSaving ? 'Guardando...' : <><CheckCircle2 className="w-4 h-4" /> Guardar Nota</>}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
