@@ -46,7 +46,7 @@
     <script type="text/babel" data-type="module">
         import React, { useState, useEffect, useCallback } from 'react';
         import { createRoot } from 'react-dom/client';
-        import { Building2, AlertTriangle, GitMerge, CheckCircle2, Database, BrainCircuit, Calculator, ShieldAlert, Activity, Users, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
+        import { Building2, AlertTriangle, GitMerge, CheckCircle2, Database, BrainCircuit, Calculator, ShieldAlert, Activity, Users, LogOut, ChevronDown, ChevronUp, Share2 } from 'lucide-react';
         
         // --- CONFIGURACIÓN FIREBASE ---
         import { initializeApp } from 'firebase/app';
@@ -221,6 +221,9 @@
             
             const [activeTab, setActiveTab] = useState('caso');
             const [localAnalysis, setLocalAnalysis] = useState('');
+            const [localAtributo, setLocalAtributo] = useState('');
+            const [localJustificacion, setLocalJustificacion] = useState('');
+            const [localDifusion, setLocalDifusion] = useState([]);
             const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, casoId: null, opcionId: null });
 
             useEffect(() => {
@@ -241,9 +244,11 @@
                         const myDoc = data.find(d => d.email === appUser.email);
                         if (myDoc) {
                             setStudentData(myDoc);
-                            if (localAnalysis === '' && myDoc.analysis) {
-                                setLocalAnalysis(myDoc.analysis);
-                            }
+                            if (localAnalysis === '' && myDoc.analysis) setLocalAnalysis(myDoc.analysis);
+                            if (localAtributo === '' && myDoc.atributo) setLocalAtributo(myDoc.atributo);
+                            if (localJustificacion === '' && myDoc.justificacion) setLocalJustificacion(myDoc.justificacion);
+                            // Avoid setting to empty array and resetting by matching exact reference. Ensure to pull data if difusion has length
+                            if (localDifusion.length === 0 && myDoc.difusion?.length > 0) setLocalDifusion(myDoc.difusion);
                         }
                     }
                 }, (err) => console.error("Error Snapshot:", err));
@@ -295,6 +300,9 @@
                             assignedCase: randomCase,
                             selection: null,
                             analysis: '',
+                            atributo: '',
+                            justificacion: '',
+                            difusion: [],
                             datosSimulados: null,
                             timestamp: new Date().toISOString()
                         });
@@ -330,13 +338,28 @@
             };
 
             const handleAnalysisBlur = async () => {
+                handleDataBlur('analysis', localAnalysis);
+            };
+
+            const handleDataBlur = async (field, value) => {
                 if (!db || !appUser || !studentData) return;
-                if (localAnalysis !== studentData.analysis) {
-                    const docId = appUser.email.replace(/[^a-zA-Z0-9]/g, '_');
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'evaluaciones_sst', docId), {
-                        analysis: localAnalysis
-                    }, { merge: true });
-                }
+                // Si el valor no ha cambiado, no hacer ping a Firebase
+                if (studentData[field] === value) return;
+                // Si es un arreglo, necesitamos comparar diferente para evitar ciclos.
+                if (Array.isArray(value) && Array.isArray(studentData[field]) && value.length === studentData[field].length && value.every((v, i) => v === studentData[field][i])) return;
+
+                const docId = appUser.email.replace(/[^a-zA-Z0-9]/g, '_');
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'evaluaciones_sst', docId), {
+                    [field]: value
+                }, { merge: true });
+            };
+
+            const toggleDifusion = (entity) => {
+                const newDifusion = localDifusion.includes(entity) 
+                    ? localDifusion.filter(e => e !== entity) 
+                    : [...localDifusion, entity];
+                setLocalDifusion(newDifusion);
+                handleDataBlur('difusion', newDifusion);
             };
 
             // --- VISTAS GLOBALES ---
@@ -580,9 +603,9 @@
                             </div>
                             
                             {expanded && (
-                                <div className="p-4 border-t border-gray-100 bg-white">
+                                <div className="p-4 border-t border-gray-100 bg-white space-y-4">
                                     {est.selection ? (
-                                        <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-100 flex justify-between items-center">
+                                        <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex justify-between items-center">
                                             <div>
                                                 <span className="text-xs font-bold uppercase text-gray-500">Decisión del estudiante (Paso 1):</span>
                                                 <p className="text-sm font-medium text-blue-800 mt-1">{optDetalle?.titulo}</p>
@@ -594,8 +617,26 @@
                                         </div>
                                     ) : null}
                                     
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <span className="text-xs font-bold uppercase text-gray-500">Atributo SVE (Paso 4):</span>
+                                            <p className="text-sm font-medium text-indigo-700 mt-1">{est.atributo || <span className="text-gray-400 italic">No seleccionado</span>}</p>
+                                            <div className="bg-gray-50 p-3 rounded border border-gray-200 mt-1 text-sm text-gray-700">
+                                                {est.justificacion || <span className="text-gray-400 italic">Sin justificación</span>}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span className="text-xs font-bold uppercase text-gray-500">Plan de Difusión (Paso 5):</span>
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {est.difusion && est.difusion.length > 0 ? est.difusion.map(d => (
+                                                    <span key={d} className="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded font-medium border border-teal-200">{d}</span>
+                                                )) : <span className="text-gray-400 italic text-sm">Ninguno seleccionado</span>}
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div>
-                                        <span className="text-xs font-bold uppercase text-gray-500">Análisis Estratégico Redactado (Paso 4):</span>
+                                        <span className="text-xs font-bold uppercase text-gray-500">Decisiones Estratégicas (Paso 6):</span>
                                         <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1 text-sm text-gray-700 min-h-[60px] whitespace-pre-wrap">
                                             {est.analysis ? est.analysis : <span className="text-gray-400 italic">El estudiante aún no ha redactado su análisis.</span>}
                                         </div>
@@ -604,8 +645,8 @@
                                     {est.analysis && (
                                         <div className="pt-4 border-t mt-4 flex items-center justify-end gap-3 bg-purple-50 p-3 rounded-lg border border-purple-100">
                                             <div className="flex flex-col text-right">
-                                                <label className="text-xs font-bold text-purple-800 uppercase">Calificar Análisis (0 a 5)</label>
-                                                <span className="text-xs text-purple-600">Puntaje subjetivo del experto</span>
+                                                <label className="text-xs font-bold text-purple-800 uppercase">Calificar Pasos 4, 5 y 6 (0 a 5)</label>
+                                                <span className="text-xs text-purple-600">Puntaje subjetivo global (Evalúa atributos, difusión y decisiones)</span>
                                             </div>
                                             <input 
                                                 type="number" 
@@ -790,11 +831,67 @@
                         {/* Paso 3: Calculadora Embebida */}
                         {datos && <Calculadora isEmbedded={true} datos={datos} />}
 
-                        {/* Paso 4: Análisis Estratégico */}
+                        {/* Paso 4: Evaluación de Atributos */}
                         {datos && (
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 border-l-4 border-l-purple-500 animate-fade-in">
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 animate-fade-in">
+                                <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                    <ShieldAlert className="w-5 h-5 text-indigo-500" /> Paso 4: Evaluación de Atributos del SVE
+                                </h2>
+                                <div className="mb-4">
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Selecciona el atributo epidemiológico principal que destaca en tu elección:</label>
+                                    <select 
+                                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none"
+                                        value={localAtributo}
+                                        onChange={(e) => { setLocalAtributo(e.target.value); handleDataBlur('atributo', e.target.value); }}
+                                    >
+                                        <option value="">Selecciona un atributo...</option>
+                                        <option value="Alta Sensibilidad">Alta Sensibilidad</option>
+                                        <option value="Alta Especificidad">Alta Especificidad</option>
+                                        <option value="Representatividad">Representatividad Poblacional</option>
+                                        <option value="Oportunidad">Oportunidad de los datos</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Justifica tu elección:</label>
+                                    <textarea 
+                                        className="w-full h-24 p-3 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm bg-gray-50 resize-y"
+                                        placeholder="Ej: Elegí esta estrategia porque su alta sensibilidad permite detectar los casos..."
+                                        value={localJustificacion}
+                                        onChange={(e) => setLocalJustificacion(e.target.value)}
+                                        onBlur={() => handleDataBlur('justificacion', localJustificacion)}
+                                    ></textarea>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Paso 5: Plan de Difusión */}
+                        {datos && (
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 animate-fade-in">
+                                <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                    <Share2 className="w-5 h-5 text-teal-500" /> Paso 5: Plan de Difusión de la Información
+                                </h2>
+                                <p className="text-sm text-gray-600 mb-4">Selecciona a quiénes deberías reportar estos hallazgos (puedes elegir varios):</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                                    {['Gerencia General', 'COPASST', 'ARL (Administradora)', 'Grupos de Exposición Similar', 'Entidades Regulatorias', 'Comité de Convivencia'].map(entidad => (
+                                        <label key={entidad} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                                            <input 
+                                                type="checkbox" 
+                                                className="w-4 h-4 text-teal-600 rounded"
+                                                checked={localDifusion.includes(entidad)}
+                                                onChange={() => toggleDifusion(entidad)}
+                                            />
+                                            <span className="text-sm text-gray-700 font-medium">{entidad}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Paso 6: Análisis Estratégico */}
+                        {datos && (
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 border-l-4 border-l-purple-500 animate-fade-in">
                                 <h2 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-                                    <BrainCircuit className="w-5 h-5 text-purple-500" /> Paso 4: Decisiones Estratégicas
+                                    <BrainCircuit className="w-5 h-5 text-purple-500" /> Paso 6: Decisiones Estratégicas
                                 </h2>
                                 <p className="text-sm text-gray-600 mb-4">Basado en los cálculos del Paso 3 y la observación de la tabla, redacta tus conclusiones y qué decisiones operativas debe tomar la empresa para mitigar el riesgo.</p>
                                 <textarea 
