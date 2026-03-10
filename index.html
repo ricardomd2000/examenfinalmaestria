@@ -14,7 +14,7 @@
         .tab-active { background-color: #e0f2fe; border-left: 4px solid #0284c7; color: #0369a1; font-weight: bold; }
         .tab-inactive { color: #4b5563; }
         .tab-inactive:hover { background-color: #f3f4f6; color: #111827; }
-        .table-container { max-height: 400px; overflow-y: auto; }
+        .table-container { max-height: 400px; overflow-y: auto; overflow-x: auto; }
         
         /* Custom Scrollbar for tables */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -819,21 +819,21 @@
                                     </h2>
                                     <span className="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-bold">Opción {opcionElegida}</span>
                                 </div>
-                                <div className="table-container border border-gray-200 rounded-lg">
+                                <div className="table-container border border-gray-200 rounded-lg overflow-x-auto shadow-sm">
                                     <table className="min-w-full divide-y divide-gray-200 text-sm">
-                                        <thead className="bg-gray-50 sticky top-0 shadow-sm z-10">
+                                        <thead className="bg-gray-100 sticky top-0 shadow-sm z-10">
                                             <tr>
                                                 {Object.keys(datos[0]).map(col => (
-                                                    <th key={col} className="px-4 py-3 text-left font-bold text-gray-600 uppercase tracking-wider text-xs">{col}</th>
+                                                    <th key={col} className="px-5 py-4 text-center align-middle font-black text-gray-700 uppercase tracking-wider text-xs whitespace-nowrap border-b-2 border-gray-300 border-r border-gray-200 bg-gray-100">{col}</th>
                                                 ))}
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
                                             {datos.map((row, idx) => (
-                                                <tr key={idx} className="hover:bg-blue-50 transition-colors">
+                                                <tr key={idx} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-100 transition-colors`}>
                                                     {Object.values(row).map((val, i) => (
-                                                        <td key={i} className="px-4 py-2 whitespace-nowrap text-gray-700">
-                                                            {val === 'Sí' || val === 'Anormal' || val === 'Muy Alto' || val === 'Incorrecto' || val === 'Rotos' || val === 'Severa' || val === 'Alta' ? <span className="text-red-600 font-bold bg-red-50 px-2 py-1 rounded">{val}</span> : val}
+                                                        <td key={i} className="px-5 py-3 whitespace-nowrap text-gray-800 font-medium text-center align-middle border-r border-gray-100">
+                                                            {val === 'Sí' || val === 'Anormal' || val === 'Muy Alto' || val === 'Incorrecto' || val === 'Rotos' || val === 'Severa' || val === 'Alta' ? <span className="text-red-700 font-black bg-red-100 border border-red-300 shadow-sm px-3 py-1.5 rounded-md">{val}</span> : val}
                                                         </td>
                                                     ))}
                                                 </tr>
