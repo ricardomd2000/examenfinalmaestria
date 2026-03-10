@@ -831,11 +831,14 @@
                                         <tbody className="bg-white divide-y divide-gray-200">
                                             {datos.map((row, idx) => (
                                                 <tr key={idx} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-100 transition-colors`}>
-                                                    {Object.values(row).map((val, i) => (
-                                                        <td key={i} className="px-5 py-3 whitespace-nowrap text-gray-800 font-medium text-center align-middle border-r border-gray-100">
-                                                            {val === 'Sí' || val === 'Anormal' || val === 'Muy Alto' || val === 'Incorrecto' || val === 'Rotos' || val === 'Severa' || val === 'Alta' ? <span className="text-red-700 font-black bg-red-100 border border-red-300 shadow-sm px-3 py-1.5 rounded-md">{val}</span> : val}
-                                                        </td>
-                                                    ))}
+                                                    {Object.keys(datos[0]).map((colKey, i) => {
+                                                        const val = row[colKey] !== undefined ? row[colKey] : '-';
+                                                        return (
+                                                            <td key={i} className="px-5 py-3 whitespace-nowrap text-gray-800 font-medium text-center align-middle border-r border-gray-100">
+                                                                {val === 'Sí' || val === 'Anormal' || val === 'Muy Alto' || val === 'Incorrecto' || val === 'Rotos' || val === 'Severa' || val === 'Alta' ? <span className="text-red-700 font-black bg-red-100 border border-red-300 shadow-sm px-3 py-1.5 rounded-md">{val}</span> : val}
+                                                            </td>
+                                                        );
+                                                    })}
                                                 </tr>
                                             ))}
                                         </tbody>
