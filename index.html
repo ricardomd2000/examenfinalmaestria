@@ -225,14 +225,8 @@
             const handleLogin = async (e) => {
                 e.preventDefault();
                 try {
-                    // Para este examen, usamos login anónimo o email simple simulado
-                    // En un entorno real, usarías Login con Google o Email/Password
-                    // Aquí habilitamos un login por email sin contraseña para facilitar el acceso rápido del usuario docente solicitado
-
-                    if (emailInput === 'ricardomd2000@gmail.com' || emailInput.includes('@')) {
-                        // Simulamos sesión guardando el email
+                    if (emailInput.includes('@')) {
                         await auth.signInAnonymously();
-                        // Guardamos metadata en Firestore para identificar al usuario
                         const u = auth.currentUser;
                         const userRole = (emailInput === 'ricardomd2000@gmail.com' || emailInput.includes('docente') || emailInput.includes('profesor')) ? 'teacher' : 'student';
 
@@ -241,7 +235,6 @@
                             role: userRole,
                             lastLogin: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                        // Forzamos actualización de estado local
                         setUser({ ...u, email: emailInput });
                         setRole(userRole);
                     } else {
@@ -310,9 +303,6 @@
                                         Entrar al Sistema
                                     </button>
                                 </div>
-                                <p className="text-xs text-gray-400 text-center italic">
-                                    Nota: Acceso automático para ricardomd2000@gmail.com como docente.
-                                </p>
                             </form>
                         </div>
                     </div>
