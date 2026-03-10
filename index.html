@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,22 +9,69 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
-        .tab-active { background-color: #e0f2fe; border-left: 4px solid #0284c7; color: #0369a1; font-weight: bold; }
-        .tab-inactive { color: #4b5563; }
-        .tab-inactive:hover { background-color: #f3f4f6; color: #111827; }
-        .table-container { max-height: 400px; overflow-y: auto; overflow-x: auto; }
-        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .tab-active {
+            background-color: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            color: #0369a1;
+            font-weight: bold;
+        }
+
+        .tab-inactive {
+            color: #4b5563;
+        }
+
+        .tab-inactive:hover {
+            background-color: #f3f4f6;
+            color: #111827;
+        }
+
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
         /* Custom Scrollbar for tables */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        .animate-fade-in { animation: fadeIn 0.4s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 
     <!-- Import Map para React, Firebase y Lucide -->
@@ -40,6 +88,7 @@
         }
     </script>
 </head>
+
 <body>
     <div id="root"></div>
 
@@ -47,7 +96,7 @@
         import React, { useState, useEffect, useCallback } from 'react';
         import { createRoot } from 'react-dom/client';
         import { Building2, AlertTriangle, GitMerge, CheckCircle2, Database, BrainCircuit, Calculator, ShieldAlert, Activity, Users, LogOut, ChevronDown, ChevronUp, Share2 } from 'lucide-react';
-        
+
         // --- CONFIGURACIÓN FIREBASE ---
         import { initializeApp } from 'firebase/app';
         import { getAuth, signInAnonymously, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
@@ -61,7 +110,7 @@
             messagingSenderId: "999773546679",
             appId: "1:999773546679:web:a0fac0d6126fc9ef6f8532"
         };
-            
+
         const app = initializeApp(miFirebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -131,76 +180,76 @@
 
             for (let i = 1; i <= 50; i++) {
                 let row = { ID: `PAC-${casoId}${opcionId}-${1000 + i}` };
-                if (casoId === 1) { 
+                if (casoId === 1) {
                     if (opcionId === 'A') {
-                        row['Edad'] = randomInt(22, 60); 
+                        row['Edad'] = randomInt(22, 60);
                         row['Incapacidad (Enfermo)'] = randomChoice(['Sí', 'No'], [0.25, 0.75]);
                         row['Días Perdidos'] = row['Incapacidad (Enfermo)'] === 'Sí' ? randomInt(3, 15) : 0;
                         row['Días Programados/Mes'] = 24; // Dato fijo para calcular tasa de ausentismo
                         row['Dx (CIE-10)'] = row['Incapacidad (Enfermo)'] === 'Sí' ? randomChoice(['M54.5', 'G56.0', 'M79.1']) : 'N/A';
                     } else if (opcionId === 'B') {
-                        row['Expuesto (Carga Física)'] = randomChoice(['Sí', 'No'], [0.6, 0.4]); 
+                        row['Expuesto (Carga Física)'] = randomChoice(['Sí', 'No'], [0.6, 0.4]);
                         // Generamos una asociación lógica para el Odds Ratio
-                        let probEnfermedad = row['Expuesto (Carga Física)'] === 'Sí' ? 0.4 : 0.1; 
+                        let probEnfermedad = row['Expuesto (Carga Física)'] === 'Sí' ? 0.4 : 0.1;
                         row['Enfermo (Dolor/TME)'] = Math.random() < probEnfermedad ? 'Sí' : 'No';
                         row['Antigüedad (Años)'] = randomInt(1, 15);
                     } else if (opcionId === 'C') {
-                        row['Puesto Crítico (Expuesto)'] = randomChoice(['Sí', 'No'], [0.3, 0.7]); 
+                        row['Puesto Crítico (Expuesto)'] = randomChoice(['Sí', 'No'], [0.3, 0.7]);
                         let probHallazgo = row['Puesto Crítico (Expuesto)'] === 'Sí' ? 0.7 : 0.2;
-                        row['Hallazgo Clínico (Enfermo)'] = Math.random() < probHallazgo ? 'Anormal' : 'Normal'; 
+                        row['Hallazgo Clínico (Enfermo)'] = Math.random() < probHallazgo ? 'Anormal' : 'Normal';
                         row['Reubicación'] = row['Hallazgo Clínico (Enfermo)'] === 'Anormal' ? randomChoice(['Sí', 'No']) : 'No';
                     }
-                } 
-                else if (casoId === 2) { 
+                }
+                else if (casoId === 2) {
                     if (opcionId === 'A') {
-                        row['Uso EPP Inadecuado (Expuesto)'] = randomChoice(['Sí', 'No'], [0.4, 0.6]); 
+                        row['Uso EPP Inadecuado (Expuesto)'] = randomChoice(['Sí', 'No'], [0.4, 0.6]);
                         let acHip = row['Uso EPP Inadecuado (Expuesto)'] === 'Sí' ? (Math.random() * 2.5 + 0.5).toFixed(2) : (Math.random() * 1.5).toFixed(2);
-                        row['Ac. Hipúrico'] = acHip; 
+                        row['Ac. Hipúrico'] = acHip;
                         row['Enfermo (BEI >1.6)'] = parseFloat(acHip) > 1.6 ? 'Sí' : 'No';
                     } else if (opcionId === 'B') {
-                        row['Zona Alta Concentración (Expuesto)'] = randomChoice(['Sí', 'No'], [0.5, 0.5]); 
+                        row['Zona Alta Concentración (Expuesto)'] = randomChoice(['Sí', 'No'], [0.5, 0.5]);
                         let tolueno = row['Zona Alta Concentración (Expuesto)'] === 'Sí' ? (Math.random() * 60 + 20).toFixed(1) : (Math.random() * 40).toFixed(1);
-                        row['Tolueno (ppm)'] = tolueno; 
+                        row['Tolueno (ppm)'] = tolueno;
                         row['TLV Excedido'] = parseFloat(tolueno) > 50 ? 'Sí' : 'No';
                         row['Reporta Síntomas (Enfermo)'] = parseFloat(tolueno) > 40 ? randomChoice(['Sí', 'No'], [0.8, 0.2]) : 'No';
                     } else if (opcionId === 'C') {
-                        row['Turno Nocturno (Expuesto)'] = randomChoice(['Sí', 'No']); 
+                        row['Turno Nocturno (Expuesto)'] = randomChoice(['Sí', 'No']);
                         let probSintoma = row['Turno Nocturno (Expuesto)'] === 'Sí' ? 0.5 : 0.2;
                         row['Cefalea/Mareo (Enfermo)'] = Math.random() < probSintoma ? 'Sí' : 'No';
                         row['Irritación Piel'] = randomChoice(['Sí', 'No'], [0.15, 0.85]);
                     }
                 }
-                else if (casoId === 3) { 
+                else if (casoId === 3) {
                     if (opcionId === 'A') {
-                        row['Alta Demanda (Expuesto)'] = randomChoice(['Sí', 'No'], [0.6, 0.4]); 
+                        row['Alta Demanda (Expuesto)'] = randomChoice(['Sí', 'No'], [0.6, 0.4]);
                         let probEstres = row['Alta Demanda (Expuesto)'] === 'Sí' ? 0.7 : 0.2;
                         row['Estrés Severo (Enfermo)'] = Math.random() < probEstres ? 'Sí' : 'No';
-                        row['Dominio Control'] = randomChoice(['Bajo', 'Medio', 'Alto']); 
+                        row['Dominio Control'] = randomChoice(['Bajo', 'Medio', 'Alto']);
                     } else if (opcionId === 'B') {
                         row['Llamó Ayuda'] = 'Sí'; row['Motivo'] = randomChoice(['Ansiedad', 'Burnout', 'Conflicto']);
                         row['Turno Rotativo (Expuesto)'] = randomChoice(['Sí', 'No']);
                         let probPsiq = row['Turno Rotativo (Expuesto)'] === 'Sí' ? 0.6 : 0.2;
                         row['A Psiquiatría (Enfermo)'] = Math.random() < probPsiq ? 'Sí' : 'No';
                     } else if (opcionId === 'C') {
-                        row['Meta Ventas Alta (Expuesto)'] = randomChoice(['Sí', 'No']); 
-                        row['Días Ausencia'] = randomInt(0, 4); 
+                        row['Meta Ventas Alta (Expuesto)'] = randomChoice(['Sí', 'No']);
+                        row['Días Ausencia'] = randomInt(0, 4);
                         row['Días Programados/Mes'] = 20;
                         row['Alerta Proxy (Enfermo)'] = (row['Días Ausencia'] > 1) ? 'Sí' : 'No';
                     }
                 }
-                else if (casoId === 4) { 
+                else if (casoId === 4) {
                     if (opcionId === 'A') {
-                        row['Área Perforación (Expuesto)'] = randomChoice(['Sí', 'No'], [0.4, 0.6]); 
+                        row['Área Perforación (Expuesto)'] = randomChoice(['Sí', 'No'], [0.4, 0.6]);
                         let probAudio = row['Área Perforación (Expuesto)'] === 'Sí' ? 0.5 : 0.1;
                         row['Descenso 4000Hz (Enfermo)'] = Math.random() < probAudio ? 'Sí' : 'No';
                         row['Uso EPP'] = randomChoice(['Frecuente', 'Ocasional']);
                     } else if (opcionId === 'B') {
-                        row['GES > 85dB (Expuesto)'] = randomChoice(['Sí', 'No'], [0.5, 0.5]); 
+                        row['GES > 85dB (Expuesto)'] = randomChoice(['Sí', 'No'], [0.5, 0.5]);
                         row['Uso EPP (%)'] = row['GES > 85dB (Expuesto)'] === 'Sí' ? randomInt(60, 100) : randomInt(30, 90);
                         let probTinnitus = row['GES > 85dB (Expuesto)'] === 'Sí' && row['Uso EPP (%)'] < 80 ? 0.6 : 0.1;
                         row['Tinnitus (Enfermo)'] = Math.random() < probTinnitus ? 'Sí' : 'No';
                     } else if (opcionId === 'C') {
-                        row['EPP Roto/Sucio (Expuesto)'] = randomChoice(['Sí', 'No'], [0.3, 0.7]); 
+                        row['EPP Roto/Sucio (Expuesto)'] = randomChoice(['Sí', 'No'], [0.3, 0.7]);
                         let probQueja = row['EPP Roto/Sucio (Expuesto)'] === 'Sí' ? 0.8 : 0.2;
                         row['Queja Confort (Enfermo)'] = Math.random() < probQueja ? 'Sí' : 'No';
                         row['Hora'] = randomChoice(['Inicio', 'Mitad', 'Fin']);
@@ -213,12 +262,12 @@
 
         // --- COMPONENTE PRINCIPAL ---
         const App = () => {
-            const [user, setUser] = useState(null); 
-            const [appUser, setAppUser] = useState(null); 
-            
-            const [studentData, setStudentData] = useState(null); 
-            const [allSubmissions, setAllSubmissions] = useState([]); 
-            
+            const [user, setUser] = useState(null);
+            const [appUser, setAppUser] = useState(null);
+
+            const [studentData, setStudentData] = useState(null);
+            const [allSubmissions, setAllSubmissions] = useState([]);
+
             const [activeTab, setActiveTab] = useState('caso');
             const [localAnalysis, setLocalAnalysis] = useState('');
             const [localAtributo, setLocalAtributo] = useState('');
@@ -234,12 +283,12 @@
 
             useEffect(() => {
                 if (!user || !db || !appUser) return;
-                
+
                 const q = collection(db, 'artifacts', appId, 'public', 'data', 'evaluaciones_sst');
                 const unsubscribe = onSnapshot(q, (snapshot) => {
                     const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     setAllSubmissions(data);
-                    
+
                     if (appUser && appUser.role === 'student') {
                         const myDoc = data.find(d => d.email === appUser.email);
                         if (myDoc) {
@@ -283,15 +332,15 @@
                     alert("Error al entrar: " + msg);
                     return; // Detener inicio de sesión si falla auth
                 }
-                
+
                 // Asegurarse de que el usuario actual ya está registrado en la variable auth
                 const currentUser = auth.currentUser;
 
                 if (role === 'student' && db && currentUser) {
-                    const docId = email.replace(/[^a-zA-Z0-9]/g, '_'); 
+                    const docId = email.replace(/[^a-zA-Z0-9]/g, '_');
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'evaluaciones_sst', docId);
                     const docSnap = await getDoc(docRef);
-                    
+
                     if (!docSnap.exists()) {
                         const randomCase = Math.floor(Math.random() * 4) + 1;
                         await setDoc(docRef, {
@@ -320,14 +369,14 @@
             };
 
             const promptConfirmSelection = (casoId, opcionId) => {
-                if (studentData?.selection) return; 
+                if (studentData?.selection) return;
                 setConfirmDialog({ isOpen: true, casoId, opcionId });
             };
 
             const confirmSelection = async () => {
                 const { casoId, opcionId } = confirmDialog;
                 setConfirmDialog({ isOpen: false, casoId: null, opcionId: null });
-                
+
                 if (!db || !appUser) return;
                 const nuevosDatos = generarDatos(casoId, opcionId);
                 const docId = appUser.email.replace(/[^a-zA-Z0-9]/g, '_');
@@ -355,8 +404,8 @@
             };
 
             const toggleDifusion = (entity) => {
-                const newDifusion = localDifusion.includes(entity) 
-                    ? localDifusion.filter(e => e !== entity) 
+                const newDifusion = localDifusion.includes(entity)
+                    ? localDifusion.filter(e => e !== entity)
                     : [...localDifusion, entity];
                 setLocalDifusion(newDifusion);
                 handleDataBlur('difusion', newDifusion);
@@ -365,7 +414,7 @@
             const handleSubmitExam = async () => {
                 const confirmar = window.confirm("¿Estás seguro de terminar tu examen? Ya no podrás modificar tus respuestas de los Pasos 4, 5 y 6.");
                 if (!confirmar) return;
-                
+
                 if (!db || !appUser) return;
                 const docId = appUser.email.replace(/[^a-zA-Z0-9]/g, '_');
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'evaluaciones_sst', docId), {
@@ -413,13 +462,13 @@
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         {calcType === 'prevalencia' ? 'Nº Casos Existentes' : calcType === 'incidencia' ? 'Nº Casos Nuevos' : 'Total Días Perdidos por Incapacidad'}
                                     </label>
-                                    <input type="number" className="w-full p-2 border border-gray-300 rounded outline-none focus:border-blue-500 bg-white" value={val1} onChange={e=>setVal1(e.target.value)} />
+                                    <input type="number" className="w-full p-2 border border-gray-300 rounded outline-none focus:border-blue-500 bg-white" value={val1} onChange={e => setVal1(e.target.value)} />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         {calcType === 'ausentismo' ? 'Total Días Programados (Trabajadores x Días)' : 'Población Total (o en riesgo)'}
                                     </label>
-                                    <input type="number" className="w-full p-2 border border-gray-300 rounded outline-none focus:border-blue-500 bg-white" value={val2} onChange={e=>setVal2(e.target.value)} />
+                                    <input type="number" className="w-full p-2 border border-gray-300 rounded outline-none focus:border-blue-500 bg-white" value={val2} onChange={e => setVal2(e.target.value)} />
                                 </div>
                             </div>
                         );
@@ -430,19 +479,19 @@
                                 <div className="col-span-2 text-sm text-gray-600 font-bold mb-1">Tabla 2x2 Clásica</div>
                                 <div className="bg-red-50 p-3 rounded border border-red-200 shadow-sm">
                                     <label className="block text-xs font-bold text-red-800 mb-1">Expuestos ENFERMOS (A)</label>
-                                    <input type="number" className="w-full p-1 border border-red-300 rounded bg-white" value={val1} onChange={e=>setVal1(e.target.value)} />
+                                    <input type="number" className="w-full p-1 border border-red-300 rounded bg-white" value={val1} onChange={e => setVal1(e.target.value)} />
                                 </div>
                                 <div className="bg-green-50 p-3 rounded border border-green-200 shadow-sm">
                                     <label className="block text-xs font-bold text-green-800 mb-1">Expuestos SANOS (B)</label>
-                                    <input type="number" className="w-full p-1 border border-green-300 rounded bg-white" value={val2} onChange={e=>setVal2(e.target.value)} />
+                                    <input type="number" className="w-full p-1 border border-green-300 rounded bg-white" value={val2} onChange={e => setVal2(e.target.value)} />
                                 </div>
                                 <div className="bg-orange-50 p-3 rounded border border-orange-200 shadow-sm">
                                     <label className="block text-xs font-bold text-orange-800 mb-1">NO Expuestos ENFERMOS (C)</label>
-                                    <input type="number" className="w-full p-1 border border-orange-300 rounded bg-white" value={val3} onChange={e=>setVal3(e.target.value)} />
+                                    <input type="number" className="w-full p-1 border border-orange-300 rounded bg-white" value={val3} onChange={e => setVal3(e.target.value)} />
                                 </div>
                                 <div className="bg-blue-50 p-3 rounded border border-blue-200 shadow-sm">
                                     <label className="block text-xs font-bold text-blue-800 mb-1">NO Expuestos SANOS (D)</label>
-                                    <input type="number" className="w-full p-1 border border-blue-300 rounded bg-white" value={val4} onChange={e=>setVal4(e.target.value)} />
+                                    <input type="number" className="w-full p-1 border border-blue-300 rounded bg-white" value={val4} onChange={e => setVal4(e.target.value)} />
                                 </div>
                             </div>
                         );
@@ -504,7 +553,7 @@
                                 <Calculator className="w-6 h-6 text-blue-600" /> Calculadora Epidemiológica
                             </h1>
                         )}
-                        
+
                         {isEmbedded && <p className="text-sm text-gray-600 mb-4">Observa la tabla superior, cuenta los casos y utiliza esta calculadora para obtener los indicadores antes de tomar tu decisión estratégica.</p>}
 
                         <div className="flex flex-wrap gap-2 mb-6 border-b pb-4">
@@ -527,10 +576,10 @@
                             <ShieldAlert className="w-5 h-5 text-blue-600" /> SST Master
                         </h2>
                         <p className="text-xs text-gray-500 mb-6 truncate">{appUser.email}</p>
-                        
+
                         <nav className="space-y-2">
                             {appUser.role === 'student' && (
-                                <button 
+                                <button
                                     onClick={() => setActiveTab('caso')}
                                     className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${activeTab === 'caso' ? 'tab-active' : 'tab-inactive'}`}
                                 >
@@ -539,7 +588,7 @@
                                 </button>
                             )}
                             {appUser.role === 'teacher' && (
-                                <button 
+                                <button
                                     onClick={() => setActiveTab('dashboard')}
                                     className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${activeTab === 'dashboard' ? 'tab-active' : 'tab-inactive'}`}
                                 >
@@ -547,7 +596,7 @@
                                 </button>
                             )}
                             <div className="my-4 border-t border-gray-200"></div>
-                            <button 
+                            <button
                                 onClick={() => setActiveTab('calculadora')}
                                 className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${activeTab === 'calculadora' ? 'tab-active' : 'tab-inactive'}`}
                             >
@@ -570,10 +619,10 @@
                     const [expanded, setExpanded] = useState(false);
                     const [notaManual, setNotaManual] = useState(est.calificacionAnalisis || '');
                     const [isSaving, setIsSaving] = useState(false);
-                    
+
                     const casoAsignado = casos.find(c => c.id === est.assignedCase);
                     const optDetalle = casoAsignado?.opciones.find(o => o.id === est.selection);
-                    
+
                     const notaPaso1 = optDetalle?.puntaje || 0;
                     const notaFinal = est.calificacionAnalisis !== undefined ? ((notaPaso1 + parseFloat(est.calificacionAnalisis)) / 2).toFixed(1) : 'Pendiente';
 
@@ -585,7 +634,7 @@
                             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'evaluaciones_sst', docId), {
                                 calificacionAnalisis: parseFloat(notaManual)
                             }, { merge: true });
-                        } catch(e) {
+                        } catch (e) {
                             console.error(e);
                         }
                         setIsSaving(false);
@@ -601,15 +650,15 @@
                                     <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-4">
                                         <span><span className="font-semibold">Caso:</span> {est.assignedCase} - {casoAsignado?.titulo.split('-')[0]}</span>
                                         <span>
-                                            <span className="font-semibold">SVE:</span> 
+                                            <span className="font-semibold">SVE:</span>
                                             {est.selection ? <span className="text-green-600 font-bold ml-1">Opción {est.selection}</span> : <span className="text-red-500 ml-1">Pendiente</span>}
                                         </span>
                                         <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded ml-2">
-                                            <span className="font-bold">Nota Final:</span> 
+                                            <span className="font-bold">Nota Final:</span>
                                             <span className="font-black ml-1">{notaFinal}</span>
                                         </span>
                                         {est.isSubmitted ? (
-                                            <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded ml-2 font-bold flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Completado</span>
+                                            <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded ml-2 font-bold flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Completado</span>
                                         ) : (
                                             <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded ml-2 font-bold flex items-center gap-1 animate-pulse">En Progreso</span>
                                         )}
@@ -617,7 +666,7 @@
                                 </div>
                                 {expanded ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
                             </div>
-                            
+
                             {expanded && (
                                 <div className="p-4 border-t border-gray-100 bg-white space-y-4">
                                     {est.selection ? (
@@ -632,7 +681,7 @@
                                             </div>
                                         </div>
                                     ) : null}
-                                    
+
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <span className="text-xs font-bold uppercase text-gray-500">Atributo SVE (Paso 4):</span>
@@ -664,15 +713,15 @@
                                                 <label className="text-xs font-bold text-purple-800 uppercase">Calificar Pasos 4, 5 y 6 (0 a 5)</label>
                                                 <span className="text-xs text-purple-600">Puntaje subjetivo global (Evalúa atributos, difusión y decisiones)</span>
                                             </div>
-                                            <input 
-                                                type="number" 
-                                                min="0" max="5" step="0.1" 
+                                            <input
+                                                type="number"
+                                                min="0" max="5" step="0.1"
                                                 value={notaManual}
                                                 onChange={(e) => setNotaManual(e.target.value)}
-                                                className="w-20 p-2 border border-purple-300 rounded focus:ring-2 focus:ring-purple-500 outline-none text-center font-bold text-lg text-purple-900 bg-white" 
+                                                className="w-20 p-2 border border-purple-300 rounded focus:ring-2 focus:ring-purple-500 outline-none text-center font-bold text-lg text-purple-900 bg-white"
                                                 placeholder="0.0"
                                             />
-                                            <button 
+                                            <button
                                                 onClick={handleSaveGrade}
                                                 disabled={isSaving || notaManual === ''}
                                                 className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm disabled:opacity-50 transition-colors flex items-center gap-2"
@@ -713,7 +762,7 @@
 
             const renderStudentView = () => {
                 if (!studentData) return <div className="p-8 text-center text-gray-500">Cargando tu caso asignado...</div>;
-                
+
                 const caso = casos.find(c => c.id === studentData.assignedCase);
                 if (!caso) return null;
 
@@ -753,15 +802,15 @@
                                 {caso.opciones.map(opt => {
                                     const isSelected = opcionElegida === opt.id;
                                     const isLocked = opcionElegida !== null && opcionElegida !== undefined;
-                                    
+
                                     return (
-                                        <div 
+                                        <div
                                             key={opt.id}
                                             onClick={() => promptConfirmSelection(caso.id, opt.id)}
                                             className={`p-4 rounded-xl border-2 transition-all 
-                                                ${isSelected ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' : 
-                                                  isLocked ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed' : 
-                                                  'border-gray-200 hover:border-blue-300 hover:bg-gray-50 cursor-pointer'}`}
+                                                ${isSelected ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' :
+                                                    isLocked ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed' :
+                                                        'border-gray-200 hover:border-blue-300 hover:bg-gray-50 cursor-pointer'}`}
                                         >
                                             <div className="flex justify-between items-start mb-2">
                                                 <span className={`font-bold text-lg ${isSelected ? 'text-blue-700' : 'text-gray-700'}`}>Opción {opt.id}</span>
@@ -789,17 +838,17 @@
                                         Confirmar Selección
                                     </h3>
                                     <p className="text-gray-600 mb-6 text-sm">
-                                        Estás a punto de seleccionar la <strong>Opción {confirmDialog.opcionId}</strong>. 
+                                        Estás a punto de seleccionar la <strong>Opción {confirmDialog.opcionId}</strong>.
                                         Una vez confirmes, se generarán los datos simulados y <strong>no podrás cambiar tu elección</strong>. ¿Estás seguro de tu decisión?
                                     </p>
                                     <div className="flex justify-end gap-3">
-                                        <button 
+                                        <button
                                             onClick={() => setConfirmDialog({ isOpen: false, casoId: null, opcionId: null })}
                                             className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium text-sm"
                                         >
                                             Cancelar
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={confirmSelection}
                                             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-bold text-sm"
                                         >
@@ -858,7 +907,7 @@
                                 </h2>
                                 <div className="mb-4">
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Selecciona el atributo epidemiológico principal que destaca en tu elección:</label>
-                                    <select 
+                                    <select
                                         className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                                         value={localAtributo}
                                         disabled={studentData?.isSubmitted}
@@ -873,7 +922,7 @@
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Justifica tu elección:</label>
-                                    <textarea 
+                                    <textarea
                                         className="w-full h-24 p-3 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm bg-gray-50 resize-y disabled:bg-gray-100 disabled:cursor-not-allowed"
                                         placeholder="Ej: Elegí esta estrategia porque su alta sensibilidad permite detectar los casos..."
                                         value={localJustificacion}
@@ -895,8 +944,8 @@
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                                     {['Gerencia General', 'COPASST', 'ARL (Administradora)', 'Grupos de Exposición Similar', 'Entidades Regulatorias', 'Comité de Convivencia'].map(entidad => (
                                         <label key={entidad} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                                            <input 
-                                                type="checkbox" 
+                                            <input
+                                                type="checkbox"
                                                 className="w-4 h-4 text-teal-600 rounded disabled:opacity-50"
                                                 checked={localDifusion.includes(entidad)}
                                                 disabled={studentData?.isSubmitted}
@@ -916,7 +965,7 @@
                                     <BrainCircuit className="w-5 h-5 text-purple-500" /> Paso 6: Decisiones Estratégicas
                                 </h2>
                                 <p className="text-sm text-gray-600 mb-4">Basado en los cálculos del Paso 3 y la observación de la tabla, redacta tus conclusiones y qué decisiones operativas debe tomar la empresa para mitigar el riesgo.</p>
-                                <textarea 
+                                <textarea
                                     className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm bg-gray-50 resize-y disabled:bg-gray-100 disabled:cursor-not-allowed"
                                     placeholder="Ej: Tras calcular el Odds Ratio (OR = 3.5), se confirma que la exposición a [Riesgo] está directamente asociada con [Enfermedad]. Por lo tanto, la decisión estratégica será..."
                                     value={localAnalysis}
@@ -962,14 +1011,14 @@
                             </div>
                             <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">Simulador SST</h1>
                             <p className="text-center text-gray-500 text-sm mb-6">Plataforma de Casos Clínicos y Vigilancia</p>
-                            
+
                             <form onSubmit={handleLogin} className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Correo Institucional</label>
-                                    <input 
-                                        type="email" 
+                                    <input
+                                        type="email"
                                         name="email"
-                                        required 
+                                        required
                                         placeholder="usuario@universidad.edu.co"
                                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                     />
@@ -1002,4 +1051,45 @@
         root.render(<App />);
     </script>
 </body>
+
+</html> required
+placeholder="usuario@universidad.edu.co"
+className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+outline-none transition-all"
+/>
+</div>
+<button type="submit"
+    className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors">
+    Ingresar al Simulador
+</button>
+</form>
+<div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 text-xs text-gray-500">
+    <strong>Nota Docentes:</strong> Ingrese un correo que contenga la palabra <span
+        className="text-blue-600 font-semibold">"docente"</span> para acceder al panel de control y ver el progreso de
+    los estudiantes.
+</div>
+</div>
+</div>
+);
+}
+
+return (
+<div className="flex min-h-screen bg-gray-100">
+    {renderSidebar()}
+    <div className="flex-1 ml-64 p-8">
+        {activeTab === 'caso' && renderStudentView()}
+        {activeTab === 'dashboard' && renderTeacherView()}
+        {activeTab === 'calculadora' &&
+        <Calculadora />}
+    </div>
+</div>
+);
+};
+
+const root = createRoot(document.getElementById('root'));
+root.render(
+<App />);
+</script>
+</body>
+
 </html>
