@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Epidemiológico - Maestría SST</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .tab-active {
+            background-color: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            color: #0369a1;
+            font-weight: bold;
+        }
+
+        .tab-inactive {
+            color: #4b5563;
+        }
+
+        .tab-inactive:hover {
+            background-color: #f3f4f6;
+            color: #111827;
+        }
+
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar for tables */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-hover {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <!-- Firebase SDK (v9 Compatibility Mode) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <script type="text/babel">
+        // --- 1. CONFIGURACIÓN FIREBASE ---
+        const miFirebaseConfig = {
+            apiKey: "AIzaSyBA8YmprgycPfClE9o2M1p8befxh-d4tiY",
+            authDomain: "unidad2maestria.firebaseapp.com",
+            projectId: "unidad2maestria",
+            storageBucket: "unidad2maestria.firebasestorage.app",
+            messagingSenderId: "999773546679",
+            appId: "1:999773546679:web:a0fac0d6126fc9ef6f8532"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(miFirebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // --- Componentes ---
+
+        const EpidemiologicalCalculator = () => {
+            const [p, setP] = React.useState(1000);   // Población expuesta
+            const [n, setN] = React.useState(50);     // Casos nuevos
+            const [k, setK] = React.useState(100);    // Constante
+            const [result, setResult] = React.useState(null);
+
+            const calculate = () => {
+                if (p > 0) {
+                    const res = (n / p) * k;
+                    setResult(res.toFixed(2));
+                }
+            };
+
+            return (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 fade-in">
+                    <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <svg className="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        Calculadora de Tasas
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Casos Nuevos (N)</label>
+                            <input type="number" value={n} onChange={(e) => setN(e.target.value)}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Población Expuesta (P)</label>
+                            <input type="number" value={p} onChange={(e) => setP(e.target.value)}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Constante (K)</label>
+                            <select value={k} onChange={(e) => setK(e.target.value)}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                                <option value="100">100 (Porcentaje)</option>
+                                <option value="1000">1.000</option>
+                                <option value="100000">100.000</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onClick={calculate} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-md active:transform active:scale-95">
+                        Calcular Tasa
+                    </button>
+                    {result && (
+                        <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                            <p className="text-blue-800 text-lg">
+                                El resultado es: <span className="font-bold text-2xl">{result}</span> por cada {k} habitantes.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [user, setUser] = React.useState(null);
+            const [role, setRole] = React.useState(null); // 'student' o 'teacher'
+            const [activeTab, setActiveTab] = React.useState('dashboard');
+            const [emailInput, setEmailInput] = React.useState('');
+            const [assignedCase, setAssignedCase] = React.useState(null);
+            const [loading, setLoading] = React.useState(true);
+            const [studentData, setStudentData] = React.useState({
+                selectedOption: '',
+                analysis: '',
+                timestamp: null
+            });
+            const [allSubmissions, setAllSubmissions] = React.useState([]);
+
+            // Casos Prácticos
+            const cases = [
+                { id: 1, title: "Brote de Dermatitis en Planta de Ensamblaje", desc: "Se detectaron 15 casos de dermatitis de contacto en una semana en el área de solventes.", options: ["Implementar EPP", "Cambiar Solvente", "Mejorar Ventilación"] },
+                { id: 2, title: "Hipoacusia en Área de Prensas", desc: "El 40% de los trabajadores de más de 5 años presenta disminución auditiva.", options: ["Uso de Protectores", "Cabinas Insonorizadas", "Rotación de Personal"] },
+                { id: 3, title: "Lumbalgias en Almacén", desc: "Alta rotación por dolores de espalda en el personal de despacho.", options: ["Capacitación Cargas", "Ayudas Mecánicas", "Rediseño Puestos"] }
+            ];
+
+            React.useEffect(() => {
+                const unsubscribe = auth.onAuthStateChanged(async (u) => {
+                    if (u) {
+                        setUser(u);
+                        // Determinar rol basándose en el email (lógica personalizada)
+                        const userRole = (u.email === 'ricardomd2000@gmail.com' || (u.email && (u.email.includes('docente') || u.email.includes('profesor')))) ? 'teacher' : 'student';
+                        setRole(userRole);
+
+                        if (userRole === 'student') {
+                            // Cargar datos previos del estudiante si existen
+                            const doc = await db.collection('submissions').doc(u.uid).get();
+                            if (doc.exists) {
+                                setStudentData(doc.data());
+                                setAssignedCase(cases.find(c => c.id === doc.data().caseId));
+                            } else {
+                                // Asignar un caso aleatorio si es nuevo
+                                const randomCase = cases[Math.floor(Math.random() * cases.length)];
+                                setAssignedCase(randomCase);
+                            }
+                        } else {
+                            // Si es profesor, suscribirse a todas las respuestas
+                            const unsubSubmissions = db.collection('submissions').onSnapshot(snapshot => {
+                                const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                                setAllSubmissions(data);
+                            });
+                            return () => unsubSubmissions();
+                        }
+                    } else {
+                        setUser(null);
+                        setRole(null);
+                    }
+                    setLoading(false);
+                });
+                return () => unsubscribe();
+            }, []);
+
+            const handleLogin = async (e) => {
+                e.preventDefault();
+                try {
+                    // Para este examen, usamos login anónimo o email simple simulado
+                    // En un entorno real, usarías Login con Google o Email/Password
+                    // Aquí habilitamos un login por email sin contraseña para facilitar el acceso rápido del usuario docente solicitado
+
+                    if (emailInput === 'ricardomd2000@gmail.com' || emailInput.includes('@')) {
+                        // Simulamos sesión guardando el email
+                        await auth.signInAnonymously();
+                        // Guardamos metadata en Firestore para identificar al usuario
+                        const u = auth.currentUser;
+                        const userRole = (emailInput === 'ricardomd2000@gmail.com' || emailInput.includes('docente') || emailInput.includes('profesor')) ? 'teacher' : 'student';
+
+                        await db.collection('users').doc(u.uid).set({
+                            email: emailInput,
+                            role: userRole,
+                            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        // Forzamos actualización de estado local
+                        setUser({ ...u, email: emailInput });
+                        setRole(userRole);
+                    } else {
+                        alert("Por favor ingresa un correo válido.");
+                    }
+                } catch (error) {
+                    console.error("Error al entrar:", error);
+                    alert("Error connection: " + error.message);
+                }
+            };
+
+            const saveStudentWork = async () => {
+                if (!user) return;
+                try {
+                    const data = {
+                        email: user.email,
+                        caseId: assignedCase.id,
+                        caseTitle: assignedCase.title,
+                        selectedOption: studentData.selectedOption,
+                        analysis: studentData.analysis,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    await db.collection('submissions').doc(user.uid).set(data, { merge: true });
+                    alert("Trabajo guardado correctamente.");
+                } catch (error) {
+                    alert("Error al guardar: " + error.message);
+                }
+            };
+
+            const handleLogout = () => auth.signOut();
+
+            if (loading) return (
+                <div className="flex h-screen items-center justify-center bg-gray-50">
+                    <div className="flex flex-col items-center">
+                        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mb-4"></div>
+                        <p className="text-gray-600 font-medium animate-pulse">Cargando simulador...</p>
+                    </div>
+                </div>
+            );
+
+            if (!user) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-500 to-indigo-700">
+                        <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-2xl fade-in">
+                            <div>
+                                <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900">
+                                    Simulador Epidemiológico
+                                </h2>
+                                <p className="mt-2 text-center text-sm text-gray-600">
+                                    Maestría en Seguridad y Salud en el Trabajo
+                                </p>
+                            </div>
+                            <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+                                <div className="rounded-md shadow-sm -space-y-px">
+                                    <div>
+                                        <label htmlFor="email-address" className="sr-only">Correo electrónico</label>
+                                        <input id="email-address" name="email" type="email" required
+                                            value={emailInput} onChange={(e) => setEmailInput(e.target.value)}
+                                            className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                                            placeholder="Introduce tu correo institucional" />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <button type="submit" className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all shadow-lg active:transform active:scale-95">
+                                        Entrar al Sistema
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-400 text-center italic">
+                                    Nota: Acceso automático para ricardomd2000@gmail.com como docente.
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                );
+            }
+
+            const renderStudentView = () => (
+                <div className="space-y-8">
+                    {/* Header Estudiante */}
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 fade-in">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Bienvenido, {user.email}</h2>
+                        <p className="text-gray-600 tracking-wide">Analiza el caso asignado y realiza el cálculo de indicadores solicitado.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Caso Asignado */}
+                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
+                            <div className="flex items-center mb-4">
+                                <span className="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full uppercase mr-3">Caso {assignedCase?.id}</span>
+                                <h3 className="text-xl font-bold text-gray-800">{assignedCase?.title}</h3>
+                            </div>
+                            <p className="text-gray-700 bg-gray-50 p-4 rounded-lg border-l-4 border-blue-400 mb-6 italic">"{assignedCase?.desc}"</p>
+
+                            <div className="space-y-4">
+                                <label className="block text-sm font-bold text-gray-700">Propuesta de Intervención:</label>
+                                {assignedCase?.options.map((opt, i) => (
+                                    <div key={i} className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${studentData.selectedOption === opt ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500' : 'border-gray-200 hover:bg-gray-50'}`}
+                                        onClick={() => setStudentData({ ...studentData, selectedOption: opt })}>
+                                        <div className={`w-5 h-5 rounded-full border mr-3 flex items-center justify-center ${studentData.selectedOption === opt ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
+                                            {studentData.selectedOption === opt && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                                        </div>
+                                        <span className={studentData.selectedOption === opt ? 'text-blue-800 font-medium' : 'text-gray-700'}>{opt}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Análisis de Resultados */}
+                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover flex flex-col">
+                            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <svg className="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Justificación del Análisis
+                            </h3>
+                            <textarea value={studentData.analysis} onChange={(e) => setStudentData({ ...studentData, analysis: e.target.value })}
+                                placeholder="Escribe aquí tu análisis técnico de los indicadores calculados..."
+                                className="w-full flex-grow p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none mb-4 min-h-[150px]" />
+                            <button onClick={saveStudentWork} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-md active:transform active:scale-95">
+                                Guardar Avance del Caso
+                            </button>
+                        </div>
+                    </div>
+
+                    <EpidemiologicalCalculator />
+                </div>
+            );
+
+            const renderTeacherView = () => (
+                <div className="space-y-8">
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center fade-in">
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-800">Panel de Control Docente</h2>
+                            <p className="text-gray-600">Monitoreo en tiempo real del progreso de los estudiantes.</p>
+                        </div>
+                        <div className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">
+                            Total Estudiantes: {allSubmissions.length}
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden fade-in">
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estudiante</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Caso</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Opción Seleccionada</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Justificación</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Último Cambio</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {allSubmissions.filter(s => s.email !== 'ricardomd2000@gmail.com').map((sub, i) => (
+                                        <tr key={i} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{sub.email}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <span className="bg-gray-100 px-2 py-1 rounded text-xs">{sub.caseTitle}</span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-semibold">{sub.selectedOption || '---'}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={sub.analysis}>{sub.analysis || 'Sin respuesta aún'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                                                {sub.timestamp ? new Date(sub.timestamp.seconds * 1000).toLocaleTimeString() : '---'}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {allSubmissions.length === 0 && (
+                                        <tr>
+                                            <td colSpan="5" className="px-6 py-10 text-center text-gray-400 italic">No hay respuestas registradas todavía.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+                    {/* Sidebar */}
+                    <aside className="w-full md:w-72 bg-white border-r border-gray-200 flex flex-col shadow-lg z-10">
+                        <div className="p-8 border-b border-gray-100 text-center">
+                            <h1 className="text-2xl font-black text-blue-700 tracking-tighter">EPIDEMIO<span className="text-gray-800">SIM</span></h1>
+                            <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-widest">Unidad 2: Indicadores</p>
+                        </div>
+                        <nav className="flex-grow p-4 space-y-2">
+                            <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center p-3 rounded-lg transition-all ${activeTab === 'dashboard' ? 'tab-active' : 'tab-inactive'}`}>
+                                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                                </svg>
+                                {role === 'teacher' ? 'Dashboard Global' : 'Mi Actividad'}
+                            </button>
+
+                            {role === 'student' && (
+                                <button onClick={() => setActiveTab('calculator')} className={`w-full flex items-center p-3 rounded-lg transition-all ${activeTab === 'calculator' ? 'tab-active' : 'tab-inactive'}`}>
+                                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                    Calculadora
+                                </button>
+                            )}
+
+                            <div className="pt-8 pb-4 px-3 text-xs font-bold text-gray-400 uppercase tracking-widest">Información de Sesión</div>
+                            <div className="px-3 py-4 bg-gray-50 rounded-xl mb-4 border border-gray-100">
+                                <p className="text-xs text-gray-500 mb-1">Conectado como:</p>
+                                <p className="text-sm font-bold text-gray-800 truncate" title={user.email}>{user.email}</p>
+                                <div className="mt-2 flex items-center">
+                                    <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2"></span>
+                                    <span className="text-[10px] text-green-600 font-bold uppercase tracking-wide">En línea</span>
+                                </div>
+                            </div>
+
+                            <button onClick={handleLogout} className="w-full flex items-center p-3 text-red-500 hover:bg-red-50 rounded-lg transition-all font-medium">
+                                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Cerrar Sesión
+                            </button>
+                        </nav>
+                        <div className="p-6 border-t border-gray-100 text-[10px] text-gray-400 text-center font-medium">
+                            &copy; 2024 Maestría en SST
+                        </div>
+                    </aside>
+
+                    {/* Main Content */}
+                    <main className="flex-grow p-6 md:p-10 overflow-y-auto max-h-screen">
+                        {role === 'teacher' ? renderTeacherView() : (
+                            activeTab === 'dashboard' ? renderStudentView() : <EpidemiologicalCalculator />
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
+
+    <!-- React and ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+</body>
+
+</html>
