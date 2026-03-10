@@ -225,24 +225,44 @@
             const handleLogin = async (e) => {
                 e.preventDefault();
                 try {
-                    if (emailInput.includes('@')) {
-                        await auth.signInAnonymously();
-                        const u = auth.currentUser;
-                        const userRole = (emailInput === 'ricardomd2000@gmail.com' || emailInput.includes('docente') || emailInput.includes('profesor')) ? 'teacher' : 'student';
-
-                        await db.collection('users').doc(u.uid).set({
-                            email: emailInput,
-                            role: userRole,
-                            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                        setUser({ ...u, email: emailInput });
-                        setRole(userRole);
-                    } else {
+                    if (!emailInput.includes('@')) {
                         alert("Por favor ingresa un correo válido.");
+                        return;
                     }
+
+                    const isTeacher = emailInput === 'ricardomd2000@gmail.com' || emailInput.includes('docente') || emailInput.includes('profesor');
+
+                    if (isTeacher) {
+                        const password = prompt("Ingrese su contraseña de docente:");
+                        if (!password) return;
+                        await auth.signInWithEmailAndPassword(emailInput, password);
+                    } else {
+                        // Estudiantes entran anónimamente
+                        await auth.signInAnonymously();
+                    }
+
+                    const u = auth.currentUser;
+                    const userRole = isTeacher ? 'teacher' : 'student';
+
+                    // Actualizar documento de usuario
+                    await db.collection('users').doc(u.uid).set({
+                        email: emailInput,
+                        role: userRole,
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+
+                    setUser({ ...u, email: emailInput });
+                    setRole(userRole);
+                    
                 } catch (error) {
                     console.error("Error al entrar:", error);
-                    alert("Error connection: " + error.message);
+                    let msg = error.message;
+                    if (error.code === 'auth/admin-restricted-operation') {
+                        msg = "El acceso anónimo no está habilitado. Por favor contacta al administrador.";
+                    } else if (error.code === 'auth/wrong-password') {
+                        msg = "Contraseña incorrecta.";
+                    }
+                    alert("Error: " + msg);
                 }
             };
 
