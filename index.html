@@ -212,6 +212,141 @@
         };
 
         // --- COMPONENTE PRINCIPAL ---
+        const EstudianteCard = ({ est }) => {
+            const [expanded, setExpanded] = useState(false);
+            const [notaManual, setNotaManual] = useState(est.calificacionAnalisis || '');
+            const [retroalimentacion, setRetroalimentacion] = useState(est.retroalimentacion || '');
+            const [isSaving, setIsSaving] = useState(false);
+            
+            const casoAsignado = casos.find(c => c.id === est.assignedCase);
+            const optDetalle = casoAsignado?.opciones.find(o => o.id === est.selection);
+            
+            const notaPaso1 = optDetalle?.puntaje || 0;
+            const notaFinal = est.calificacionAnalisis !== undefined ? ((notaPaso1 + parseFloat(est.calificacionAnalisis)) / 2).toFixed(1) : 'Pendiente';
+
+            const handleSaveGrade = async () => {
+                if (!db) return;
+                setIsSaving(true);
+                try {
+                    const docId = est.email.replace(/[^a-zA-Z0-9]/g, '_');
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'evaluaciones_sst', docId), {
+                        calificacionAnalisis: parseFloat(notaManual),
+                        retroalimentacion: retroalimentacion
+                    }, { merge: true });
+                } catch(e) {
+                    console.error(e);
+                }
+                setIsSaving(false);
+            };
+
+            return (
+                <div className="bg-white border border-gray-200 rounded-xl mb-4 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <div className="p-4 flex justify-between items-center bg-gray-50 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+                        <div>
+                            <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                                <Users className="w-4 h-4 text-blue-500" /> {est.email}
+                            </h3>
+                            <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-4">
+                                <span><span className="font-semibold">Caso:</span> {est.assignedCase} - {casoAsignado?.titulo.split('-')[0]}</span>
+                                <span>
+                                    <span className="font-semibold">SVE:</span> 
+                                    {est.selection ? <span className="text-green-600 font-bold ml-1">Opción {est.selection}</span> : <span className="text-red-500 ml-1">Pendiente</span>}
+                                </span>
+                                <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded ml-2">
+                                    <span className="font-bold">Nota Final:</span> 
+                                    <span className="font-black ml-1">{notaFinal}</span>
+                                </span>
+                                {est.isSubmitted ? (
+                                    <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded ml-2 font-bold flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Completado</span>
+                                ) : (
+                                    <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded ml-2 font-bold flex items-center gap-1 animate-pulse">En Progreso</span>
+                                )}
+                            </div>
+                        </div>
+                        {expanded ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+                    </div>
+                    
+                    {expanded && (
+                        <div className="p-4 border-t border-gray-100 bg-white space-y-4">
+                            {est.selection ? (
+                                <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex justify-between items-center">
+                                    <div>
+                                        <span className="text-xs font-bold uppercase text-gray-500">Decisión del estudiante (Paso 1):</span>
+                                        <p className="text-sm font-medium text-blue-800 mt-1">{optDetalle?.titulo}</p>
+                                    </div>
+                                    <div className="text-right pl-4 border-l border-blue-200">
+                                        <span className="text-xs font-bold uppercase text-blue-500 block">Puntaje Automático</span>
+                                        <span className="text-xl font-black text-blue-700">{notaPaso1.toFixed(1)} <span className="text-sm font-normal text-blue-500">/ 5.0</span></span>
+                                    </div>
+                                </div>
+                            ) : null}
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <span className="text-xs font-bold uppercase text-gray-500">Atributo SVE (Paso 4):</span>
+                                    <p className="text-sm font-medium text-indigo-700 mt-1">{est.atributo || <span className="text-gray-400 italic">No seleccionado</span>}</p>
+                                    <div className="bg-gray-50 p-3 rounded border border-gray-200 mt-1 text-sm text-gray-700">
+                                        {est.justificacion || <span className="text-gray-400 italic">Sin justificación</span>}
+                                    </div>
+                                </div>
+                                <div>
+                                    <span className="text-xs font-bold uppercase text-gray-500">Plan de Difusión (Paso 5):</span>
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {est.difusion && est.difusion.length > 0 ? est.difusion.map(d => (
+                                            <span key={d} className="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded font-medium border border-teal-200">{d}</span>
+                                        )) : <span className="text-gray-400 italic text-sm">Ninguno seleccionado</span>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span className="text-xs font-bold uppercase text-gray-500">Decisiones Estratégicas (Paso 6):</span>
+                                <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1 text-sm text-gray-700 min-h-[60px] whitespace-pre-wrap">
+                                    {est.analysis ? est.analysis : <span className="text-gray-400 italic">El estudiante aún no ha redactado su análisis.</span>}
+                                </div>
+                            </div>
+
+                            {est.analysis && (
+                                <div className="pt-4 border-t mt-4 gap-3 bg-purple-50 p-4 rounded-lg border border-purple-100 flex flex-col">
+                                    <div className="flex flex-col mb-3">
+                                        <label className="text-xs font-bold text-gray-700 uppercase mb-1 flex items-center gap-1"><BrainCircuit className="w-4 h-4 text-purple-600"/> Retroalimentación para el estudiante:</label>
+                                        <textarea 
+                                            className="w-full h-24 p-3 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm bg-white resize-y shadow-sm"
+                                            placeholder="Escribe aquí tus comentarios, correcciones y felicitaciones para el estudiante..."
+                                            value={retroalimentacion}
+                                            onChange={(e) => setRetroalimentacion(e.target.value)}
+                                        ></textarea>
+                                    </div>
+
+                                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-purple-200">
+                                        <div className="flex flex-col text-right">
+                                            <label className="text-xs font-bold text-purple-800 uppercase">Calificar Pasos 4, 5 y 6 (0 a 5)</label>
+                                            <span className="text-xs text-purple-600">Puntaje subjetivo global (Evalúa atributos, difusión y decisiones)</span>
+                                        </div>
+                                        <input 
+                                            type="number" 
+                                            min="0" max="5" step="0.1" 
+                                            value={notaManual}
+                                            onChange={(e) => setNotaManual(e.target.value)}
+                                            className="w-20 p-2 border border-purple-300 rounded focus:ring-2 focus:ring-purple-500 outline-none text-center font-bold text-lg text-purple-900 bg-white" 
+                                            placeholder="0.0"
+                                        />
+                                        <button 
+                                            onClick={handleSaveGrade}
+                                            disabled={isSaving || notaManual === ''}
+                                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm disabled:opacity-50 transition-colors flex items-center gap-2"
+                                        >
+                                            {isSaving ? 'Guardando...' : <><CheckCircle2 className="w-4 h-4" /> Guardar Nota y Retro</>}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
         const App = () => {
             const [user, setUser] = useState(null); 
             const [appUser, setAppUser] = useState(null); 
@@ -566,140 +701,6 @@
             const renderTeacherView = () => {
                 const estudiantes = allSubmissions.filter(s => s.role === 'student');
 
-                const EstudianteCard = ({ est }) => {
-                    const [expanded, setExpanded] = useState(false);
-                    const [notaManual, setNotaManual] = useState(est.calificacionAnalisis || '');
-                    const [retroalimentacion, setRetroalimentacion] = useState(est.retroalimentacion || '');
-                    const [isSaving, setIsSaving] = useState(false);
-                    
-                    const casoAsignado = casos.find(c => c.id === est.assignedCase);
-                    const optDetalle = casoAsignado?.opciones.find(o => o.id === est.selection);
-                    
-                    const notaPaso1 = optDetalle?.puntaje || 0;
-                    const notaFinal = est.calificacionAnalisis !== undefined ? ((notaPaso1 + parseFloat(est.calificacionAnalisis)) / 2).toFixed(1) : 'Pendiente';
-
-                    const handleSaveGrade = async () => {
-                        if (!db) return;
-                        setIsSaving(true);
-                        try {
-                            const docId = est.email.replace(/[^a-zA-Z0-9]/g, '_');
-                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'evaluaciones_sst', docId), {
-                                calificacionAnalisis: parseFloat(notaManual),
-                                retroalimentacion: retroalimentacion
-                            }, { merge: true });
-                        } catch(e) {
-                            console.error(e);
-                        }
-                        setIsSaving(false);
-                    };
-
-                    return (
-                        <div className="bg-white border border-gray-200 rounded-xl mb-4 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                            <div className="p-4 flex justify-between items-center bg-gray-50 cursor-pointer" onClick={() => setExpanded(!expanded)}>
-                                <div>
-                                    <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                                        <Users className="w-4 h-4 text-blue-500" /> {est.email}
-                                    </h3>
-                                    <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-4">
-                                        <span><span className="font-semibold">Caso:</span> {est.assignedCase} - {casoAsignado?.titulo.split('-')[0]}</span>
-                                        <span>
-                                            <span className="font-semibold">SVE:</span> 
-                                            {est.selection ? <span className="text-green-600 font-bold ml-1">Opción {est.selection}</span> : <span className="text-red-500 ml-1">Pendiente</span>}
-                                        </span>
-                                        <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded ml-2">
-                                            <span className="font-bold">Nota Final:</span> 
-                                            <span className="font-black ml-1">{notaFinal}</span>
-                                        </span>
-                                        {est.isSubmitted ? (
-                                            <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded ml-2 font-bold flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Completado</span>
-                                        ) : (
-                                            <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded ml-2 font-bold flex items-center gap-1 animate-pulse">En Progreso</span>
-                                        )}
-                                    </div>
-                                </div>
-                                {expanded ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
-                            </div>
-                            
-                            {expanded && (
-                                <div className="p-4 border-t border-gray-100 bg-white space-y-4">
-                                    {est.selection ? (
-                                        <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex justify-between items-center">
-                                            <div>
-                                                <span className="text-xs font-bold uppercase text-gray-500">Decisión del estudiante (Paso 1):</span>
-                                                <p className="text-sm font-medium text-blue-800 mt-1">{optDetalle?.titulo}</p>
-                                            </div>
-                                            <div className="text-right pl-4 border-l border-blue-200">
-                                                <span className="text-xs font-bold uppercase text-blue-500 block">Puntaje Automático</span>
-                                                <span className="text-xl font-black text-blue-700">{notaPaso1.toFixed(1)} <span className="text-sm font-normal text-blue-500">/ 5.0</span></span>
-                                            </div>
-                                        </div>
-                                    ) : null}
-                                    
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <span className="text-xs font-bold uppercase text-gray-500">Atributo SVE (Paso 4):</span>
-                                            <p className="text-sm font-medium text-indigo-700 mt-1">{est.atributo || <span className="text-gray-400 italic">No seleccionado</span>}</p>
-                                            <div className="bg-gray-50 p-3 rounded border border-gray-200 mt-1 text-sm text-gray-700">
-                                                {est.justificacion || <span className="text-gray-400 italic">Sin justificación</span>}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <span className="text-xs font-bold uppercase text-gray-500">Plan de Difusión (Paso 5):</span>
-                                            <div className="flex flex-wrap gap-2 mt-2">
-                                                {est.difusion && est.difusion.length > 0 ? est.difusion.map(d => (
-                                                    <span key={d} className="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded font-medium border border-teal-200">{d}</span>
-                                                )) : <span className="text-gray-400 italic text-sm">Ninguno seleccionado</span>}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <span className="text-xs font-bold uppercase text-gray-500">Decisiones Estratégicas (Paso 6):</span>
-                                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1 text-sm text-gray-700 min-h-[60px] whitespace-pre-wrap">
-                                            {est.analysis ? est.analysis : <span className="text-gray-400 italic">El estudiante aún no ha redactado su análisis.</span>}
-                                        </div>
-                                    </div>
-
-                                    {est.analysis && (
-                                        <div className="pt-4 border-t mt-4 gap-3 bg-purple-50 p-4 rounded-lg border border-purple-100 flex flex-col">
-                                            <div className="flex flex-col mb-3">
-                                                <label className="text-xs font-bold text-gray-700 uppercase mb-1 flex items-center gap-1"><BrainCircuit className="w-4 h-4 text-purple-600"/> Retroalimentación para el estudiante:</label>
-                                                <textarea 
-                                                    className="w-full h-24 p-3 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm bg-white resize-y shadow-sm"
-                                                    placeholder="Escribe aquí tus comentarios, correcciones y felicitaciones para el estudiante..."
-                                                    value={retroalimentacion}
-                                                    onChange={(e) => setRetroalimentacion(e.target.value)}
-                                                ></textarea>
-                                            </div>
-
-                                            <div className="flex items-center justify-end gap-3 pt-3 border-t border-purple-200">
-                                                <div className="flex flex-col text-right">
-                                                    <label className="text-xs font-bold text-purple-800 uppercase">Calificar Pasos 4, 5 y 6 (0 a 5)</label>
-                                                    <span className="text-xs text-purple-600">Puntaje subjetivo global (Evalúa atributos, difusión y decisiones)</span>
-                                                </div>
-                                                <input 
-                                                    type="number" 
-                                                    min="0" max="5" step="0.1" 
-                                                    value={notaManual}
-                                                    onChange={(e) => setNotaManual(e.target.value)}
-                                                    className="w-20 p-2 border border-purple-300 rounded focus:ring-2 focus:ring-purple-500 outline-none text-center font-bold text-lg text-purple-900 bg-white" 
-                                                    placeholder="0.0"
-                                                />
-                                                <button 
-                                                    onClick={handleSaveGrade}
-                                                    disabled={isSaving || notaManual === ''}
-                                                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm disabled:opacity-50 transition-colors flex items-center gap-2"
-                                                >
-                                                    {isSaving ? 'Guardando...' : <><CheckCircle2 className="w-4 h-4" /> Guardar Nota y Retro</>}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    );
-                };
 
                 return (
                     <div className="max-w-4xl mx-auto animate-fade-in pb-12">
